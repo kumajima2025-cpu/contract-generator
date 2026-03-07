@@ -42,6 +42,53 @@ async function loadTemplate(path){
   return await res.text();
 }
 
+function getPresetTheme(preset){
+  const themes = {
+    latte: {
+      mainColor: "#C35A2E",
+      bgColor: "#FFF7ED",
+      textColor: "#2F201B",
+      mutedColor: "#8B6F61",
+      stoneColor: "#EFE6DD",
+      dustyColor: "#E9B18F"
+    },
+    sage: {
+      mainColor: "#4F6F52",
+      bgColor: "#F5F3EF",
+      textColor: "#223127",
+      mutedColor: "#667A6B",
+      stoneColor: "#E7ECE7",
+      dustyColor: "#A7B8A8"
+    },
+    mori: {
+      mainColor: "#6B7280",
+      bgColor: "#F7F7F6",
+      textColor: "#2E3136",
+      mutedColor: "#6B7280",
+      stoneColor: "#ECECEC",
+      dustyColor: "#C9CDD3"
+    },
+    rose: {
+      mainColor: "#B76E79",
+      bgColor: "#FFF8F8",
+      textColor: "#4A2C33",
+      mutedColor: "#8C6670",
+      stoneColor: "#F3E6E8",
+      dustyColor: "#D9A8B0"
+    },
+    wood: {
+      mainColor: "#8B5E3C",
+      bgColor: "#FBF7F2",
+      textColor: "#3E2A1F",
+      mutedColor: "#7A6253",
+      stoneColor: "#EFE5DB",
+      dustyColor: "#C9A891"
+    }
+  };
+
+  return themes[preset] || themes.latte;
+}
+
 function validateInput(data){
   const missing = [];
   if(!data.contractTitle) missing.push("契約標題");
@@ -56,6 +103,9 @@ function validateInput(data){
 }
 
 function collectData(){
+  const preset = getVal("themePreset") || "latte";
+  const theme = getPresetTheme(preset);
+
   return {
     contractTitle: getVal("contractTitle"),
     storeName: getVal("storeName"),
@@ -68,8 +118,13 @@ function collectData(){
     debugMode: getVal("debugMode"),
     zipName: getVal("zipName"),
     repoName: getVal("repoName"),
-    mainColor: $("mainColor").value,
-    bgColor: $("bgColor").value
+    themePreset: preset,
+    mainColor: $("mainColor").value || theme.mainColor,
+    bgColor: $("bgColor").value || theme.bgColor,
+    textColor: theme.textColor,
+    mutedColor: theme.mutedColor,
+    stoneColor: theme.stoneColor,
+    dustyColor: theme.dustyColor
   };
 }
 
@@ -114,24 +169,23 @@ async function generateFiles(data){
 
   const storeConfig = buildStoreConfig(data);
   const codeConfig = buildCodeConfig(data);
-  const theme = getThemeColors(data.mainColor, data.bgColor);
 
-const indexHtml = applyTemplate(indexTemplate, {
-  STORE_CONFIG: storeConfig,
-  STORE_NAME: data.storeName,
-  STORE_ADDRESS: data.storeAddress,
-  STORE_LINE: data.storeLine,
-  BACKUP_EMAIL: data.backupEmail,
-  CONTRACT_TITLE: data.contractTitle,
-  SECRET: data.sharedSecret,
-  REPO_NAME: data.repoName || "",
-  MAIN_COLOR: data.mainColor,
-  BG_COLOR: data.bgColor,
-  TEXT_COLOR: theme.textColor,
-  MUTED_COLOR: theme.mutedColor,
-  STONE_COLOR: theme.stoneColor,
-  DUSTY_COLOR: theme.dustyColor
-});
+  const indexHtml = applyTemplate(indexTemplate, {
+    STORE_CONFIG: storeConfig,
+    STORE_NAME: data.storeName,
+    STORE_ADDRESS: data.storeAddress,
+    STORE_LINE: data.storeLine,
+    BACKUP_EMAIL: data.backupEmail,
+    CONTRACT_TITLE: data.contractTitle,
+    SECRET: data.sharedSecret,
+    REPO_NAME: data.repoName || "",
+    MAIN_COLOR: data.mainColor,
+    BG_COLOR: data.bgColor,
+    TEXT_COLOR: data.textColor,
+    MUTED_COLOR: data.mutedColor,
+    STONE_COLOR: data.stoneColor,
+    DUSTY_COLOR: data.dustyColor
+  });
 
   const codeGs = applyTemplate(codeTemplate, {
     CODE_CONFIG: codeConfig,
@@ -223,6 +277,12 @@ async function downloadZip(){
   }
 }
 
+function applyPresetToInputs(preset){
+  const theme = getPresetTheme(preset);
+  $("mainColor").value = theme.mainColor;
+  $("bgColor").value = theme.bgColor;
+}
+
 function resetAll(){
   setVal("contractTitle", "寵物美容服務定型化契約");
   setVal("storeName", "");
@@ -235,8 +295,8 @@ function resetAll(){
   setVal("debugMode", "false");
   setVal("zipName", "");
   setVal("repoName", "");
-  $("mainColor").value = "#C35A2E";
-  $("bgColor").value = "#FFF7ED";
+  setVal("themePreset", "latte");
+  applyPresetToInputs("latte");
 
   $("indexOut").value = "";
   $("codeOut").value = "";
@@ -254,53 +314,10 @@ function fillSample(){
   setVal("googleScriptUrl", "");
   setVal("sharedSecret", randomSecret(12));
   setVal("debugMode", "false");
-  setVal("zipName", "kumajima-contract-template");
-  setVal("repoName", "kumajima-contract");
-  $("mainColor").value = "#4F6F52";
-  $("bgColor").value = "#F5F3EF";
-}
-
-function getThemeColors(mainColor, bgColor){
-  const presets = {
-    "#C35A2E|#FFF7ED": {
-      textColor: "#2F201B",
-      mutedColor: "#8B6F61",
-      stoneColor: "#EFE6DD",
-      dustyColor: "#E9B18F"
-    },
-    "#4F6F52|#F5F3EF": {
-      textColor: "#223127",
-      mutedColor: "#667A6B",
-      stoneColor: "#E7ECE7",
-      dustyColor: "#A7B8A8"
-    },
-    "#6B7280|#F7F7F6": {
-      textColor: "#2E3136",
-      mutedColor: "#6B7280",
-      stoneColor: "#ECECEC",
-      dustyColor: "#C9CDD3"
-    },
-    "#B76E79|#FFF8F8": {
-      textColor: "#4A2C33",
-      mutedColor: "#8C6670",
-      stoneColor: "#F3E6E8",
-      dustyColor: "#D9A8B0"
-    },
-    "#8B5E3C|#FBF7F2": {
-      textColor: "#3E2A1F",
-      mutedColor: "#7A6253",
-      stoneColor: "#EFE5DB",
-      dustyColor: "#C9A891"
-    }
-  };
-
-  const key = `${mainColor}|${bgColor}`;
-  return presets[key] || {
-    textColor: "#2F201B",
-    mutedColor: "#8B6F61",
-    stoneColor: "#EFE6DD",
-    dustyColor: mainColor
-  };
+  setVal("zipName", "pet-contract-template");
+  setVal("repoName", "pet-contract");
+  setVal("themePreset", "latte");
+  applyPresetToInputs("latte");
 }
 
 async function copyTarget(id){
@@ -319,12 +336,10 @@ function initDefaults(){
   if(!$("repoName").value && $("storeName").value){
     setVal("repoName", slugify(getVal("storeName")) + "-contract");
   }
-  if(!$("mainColor").value){
-    $("mainColor").value = "#C35A2E";
+  if(!$("themePreset").value){
+    setVal("themePreset", "latte");
   }
-  if(!$("bgColor").value){
-    $("bgColor").value = "#FFF7ED";
-  }
+  applyPresetToInputs(getVal("themePreset") || "latte");
 }
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -338,6 +353,10 @@ window.addEventListener("DOMContentLoaded", () => {
   $("downloadBtn").addEventListener("click", downloadZip);
   $("resetBtn").addEventListener("click", resetAll);
   $("sampleBtn").addEventListener("click", fillSample);
+
+  $("themePreset").addEventListener("change", (e) => {
+    applyPresetToInputs(e.target.value);
+  });
 
   $("storeName").addEventListener("input", () => {
     if(!getVal("zipName")){
