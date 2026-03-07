@@ -326,74 +326,129 @@ async function copyTarget(id){
   await navigator.clipboard.writeText(text);
 }
 function updatePreview(){
-
   const mainColor = $("mainColor").value;
   const bgColor = $("bgColor").value;
 
   const html = `
   <html>
-  <style>
-  body{
-    margin:0;
-    padding:20px;
-    font-family:"Noto Sans TC",sans-serif;
-    background:${bgColor};
-  }
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      *{
+        box-sizing:border-box;
+      }
 
-  .card{
-    background:white;
-    padding:20px;
-    border-radius:16px;
-    border:2px solid ${mainColor};
-  }
+      body{
+        margin:0;
+        padding:24px;
+        font-family:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif;
+        background:${bgColor};
+      }
 
-  h1{
-    color:${mainColor};
-  }
+      .page{
+        max-width:420px;
+        margin:0 auto;
+      }
 
-  .box{
-    border:1px solid ${mainColor};
-    padding:12px;
-    border-radius:10px;
-    margin-top:10px;
-  }
+      .outer{
+        background:rgba(255,255,255,.72);
+        border-radius:24px;
+        padding:24px;
+      }
 
-  .btn{
-    margin-top:20px;
-    padding:12px;
-    border:none;
-    border-radius:12px;
-    background:${mainColor};
-    color:white;
-    font-weight:bold;
-  }
-  </style>
+      .card{
+        background:#fff;
+        padding:32px 24px 28px;
+        border-radius:24px;
+        border:2px solid ${mainColor};
+        box-shadow:0 10px 24px rgba(0,0,0,.06);
+      }
+
+      .title{
+        color:${mainColor};
+        font-size:28px;
+        line-height:1.35;
+        font-weight:900;
+        margin:0 0 28px;
+        letter-spacing:.5px;
+      }
+
+      .box{
+        border:1.5px solid ${mainColor};
+        padding:18px 20px;
+        border-radius:18px;
+        margin-top:16px;
+        font-size:17px;
+        line-height:1.5;
+        background:#fff;
+      }
+
+      .btn{
+        margin-top:28px;
+        padding:14px 24px;
+        border:none;
+        border-radius:16px;
+        background:${mainColor};
+        color:white;
+        font-weight:900;
+        font-size:16px;
+        box-shadow:0 8px 18px rgba(0,0,0,.08);
+      }
+
+      @media (max-width:480px){
+        body{
+          padding:16px;
+        }
+
+        .outer{
+          padding:16px;
+          border-radius:20px;
+        }
+
+        .card{
+          padding:24px 18px 22px;
+          border-radius:20px;
+        }
+
+        .title{
+          font-size:24px;
+          margin-bottom:22px;
+        }
+
+        .box{
+          padding:16px 16px;
+          font-size:16px;
+          margin-top:14px;
+        }
+
+        .btn{
+          margin-top:24px;
+          width:auto;
+          min-width:120px;
+        }
+      }
+    </style>
+  </head>
 
   <body>
+    <div class="page">
+      <div class="outer">
+        <div class="card">
+          <div class="title">寵物美容服務<br>定型化契約</div>
 
-  <div class="card">
+          <div class="box">飼主姓名：王小明</div>
+          <div class="box">寵物名字：LISA</div>
 
-  <h1>寵物美容服務定型化契約</h1>
-
-  <div class="box">
-  飼主姓名：王小明
-  </div>
-
-  <div class="box">
-  寵物名字：LISA
-  </div>
-
-  <button class="btn">提交簽署</button>
-
-  </div>
-
+          <button class="btn">提交簽署</button>
+        </div>
+      </div>
+    </div>
   </body>
   </html>
   `;
 
   const frame = $("previewFrame");
   frame.srcdoc = html;
-
 }
 
 function initDefaults(){
