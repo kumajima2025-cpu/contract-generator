@@ -114,6 +114,7 @@ async function generateFiles(data){
 
   const storeConfig = buildStoreConfig(data);
   const codeConfig = buildCodeConfig(data);
+  const theme = getThemeColors(data.mainColor, data.bgColor);
 
   const indexHtml = applyTemplate(indexTemplate, {
     STORE_CONFIG: storeConfig,
