@@ -325,6 +325,76 @@ async function copyTarget(id){
   if(!text) return;
   await navigator.clipboard.writeText(text);
 }
+function updatePreview(){
+
+  const mainColor = $("mainColor").value;
+  const bgColor = $("bgColor").value;
+
+  const html = `
+  <html>
+  <style>
+  body{
+    margin:0;
+    padding:20px;
+    font-family:"Noto Sans TC",sans-serif;
+    background:${bgColor};
+  }
+
+  .card{
+    background:white;
+    padding:20px;
+    border-radius:16px;
+    border:2px solid ${mainColor};
+  }
+
+  h1{
+    color:${mainColor};
+  }
+
+  .box{
+    border:1px solid ${mainColor};
+    padding:12px;
+    border-radius:10px;
+    margin-top:10px;
+  }
+
+  .btn{
+    margin-top:20px;
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    background:${mainColor};
+    color:white;
+    font-weight:bold;
+  }
+  </style>
+
+  <body>
+
+  <div class="card">
+
+  <h1>寵物美容服務定型化契約</h1>
+
+  <div class="box">
+  飼主姓名：王小明
+  </div>
+
+  <div class="box">
+  寵物名字：LISA
+  </div>
+
+  <button class="btn">提交簽署</button>
+
+  </div>
+
+  </body>
+  </html>
+  `;
+
+  const frame = $("previewFrame");
+  frame.srcdoc = html;
+
+}
 
 function initDefaults(){
   if(!$("sharedSecret").value){
@@ -354,9 +424,14 @@ window.addEventListener("DOMContentLoaded", () => {
   $("resetBtn").addEventListener("click", resetAll);
   $("sampleBtn").addEventListener("click", fillSample);
 
-  $("themePreset").addEventListener("change", (e) => {
-    applyPresetToInputs(e.target.value);
-  });
+  $("themePreset").addEventListener("change",(e)=>{
+  const theme=getPresetTheme(e.target.value);
+
+  $("mainColor").value=theme.mainColor;
+  $("bgColor").value=theme.bgColor;
+
+  updatePreview();
+});
 
   $("storeName").addEventListener("input", () => {
     if(!getVal("zipName")){
@@ -366,6 +441,10 @@ window.addEventListener("DOMContentLoaded", () => {
       setVal("repoName", slugify(getVal("storeName")) + "-contract");
     }
   });
+  
+$("mainColor").addEventListener("input", updatePreview);
+$("bgColor").addEventListener("input", updatePreview);
+  updatePreview();
 
   document.querySelectorAll("[data-copy]").forEach(btn => {
     btn.addEventListener("click", async () => {
