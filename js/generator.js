@@ -50,6 +50,8 @@ function validateInput(data){
   if(!data.storeLine) missing.push("官方 LINE");
   if(!data.backupEmail) missing.push("店家 Email / 備份信箱");
   if(!data.sharedSecret) missing.push("sharedSecret");
+  if(!data.mainColor) missing.push("主題色");
+  if(!data.bgColor) missing.push("背景色");
   return missing;
 }
 
@@ -65,7 +67,9 @@ function collectData(){
     sharedSecret: getVal("sharedSecret"),
     debugMode: getVal("debugMode"),
     zipName: getVal("zipName"),
-    repoName: getVal("repoName")
+    repoName: getVal("repoName"),
+    mainColor: $("mainColor").value,
+    bgColor: $("bgColor").value
   };
 }
 
@@ -119,7 +123,9 @@ async function generateFiles(data){
     BACKUP_EMAIL: data.backupEmail,
     CONTRACT_TITLE: data.contractTitle,
     SECRET: data.sharedSecret,
-    REPO_NAME: data.repoName || ""
+    REPO_NAME: data.repoName || "",
+    MAIN_COLOR: data.mainColor,
+    BG_COLOR: data.bgColor
   });
 
   const codeGs = applyTemplate(codeTemplate, {
@@ -224,6 +230,8 @@ function resetAll(){
   setVal("debugMode", "false");
   setVal("zipName", "");
   setVal("repoName", "");
+  $("mainColor").value = "#C35A2E";
+  $("bgColor").value = "#FFF7ED";
 
   $("indexOut").value = "";
   $("codeOut").value = "";
@@ -233,16 +241,18 @@ function resetAll(){
 
 function fillSample(){
   setVal("contractTitle", "寵物美容服務定型化契約");
-  setVal("storeName", "熊嶼寵物有限公司");
-  setVal("storeAddress", "新北市板橋區文化路一段100號");
-  setVal("storeLine", "@kumajima");
-  setVal("backupEmail", "kumajima2025@gmail.com");
+  setVal("storeName", "ＯＯ寵物有限公司");
+  setVal("storeAddress", "台北市信義區100號");
+  setVal("storeLine", "@abcde12345");
+  setVal("backupEmail", "abcde12345@gmail.com");
   setVal("liffId", "");
   setVal("googleScriptUrl", "");
   setVal("sharedSecret", randomSecret(12));
   setVal("debugMode", "false");
   setVal("zipName", "kumajima-contract-template");
   setVal("repoName", "kumajima-contract");
+  $("mainColor").value = "#4F6F52";
+  $("bgColor").value = "#F5F3EF";
 }
 
 async function copyTarget(id){
@@ -260,6 +270,12 @@ function initDefaults(){
   }
   if(!$("repoName").value && $("storeName").value){
     setVal("repoName", slugify(getVal("storeName")) + "-contract");
+  }
+  if(!$("mainColor").value){
+    $("mainColor").value = "#C35A2E";
+  }
+  if(!$("bgColor").value){
+    $("bgColor").value = "#FFF7ED";
   }
 }
 
