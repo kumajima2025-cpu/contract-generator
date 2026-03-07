@@ -255,6 +255,49 @@ function fillSample(){
   $("bgColor").value = "#F5F3EF";
 }
 
+function getThemeColors(mainColor, bgColor){
+  const presets = {
+    "#C35A2E|#FFF7ED": {
+      textColor: "#2F201B",
+      mutedColor: "#8B6F61",
+      stoneColor: "#EFE6DD",
+      dustyColor: "#E9B18F"
+    },
+    "#4F6F52|#F5F3EF": {
+      textColor: "#223127",
+      mutedColor: "#667A6B",
+      stoneColor: "#E7ECE7",
+      dustyColor: "#A7B8A8"
+    },
+    "#6B7280|#F7F7F6": {
+      textColor: "#2E3136",
+      mutedColor: "#6B7280",
+      stoneColor: "#ECECEC",
+      dustyColor: "#C9CDD3"
+    },
+    "#B76E79|#FFF8F8": {
+      textColor: "#4A2C33",
+      mutedColor: "#8C6670",
+      stoneColor: "#F3E6E8",
+      dustyColor: "#D9A8B0"
+    },
+    "#8B5E3C|#FBF7F2": {
+      textColor: "#3E2A1F",
+      mutedColor: "#7A6253",
+      stoneColor: "#EFE5DB",
+      dustyColor: "#C9A891"
+    }
+  };
+
+  const key = `${mainColor}|${bgColor}`;
+  return presets[key] || {
+    textColor: "#2F201B",
+    mutedColor: "#8B6F61",
+    stoneColor: "#EFE6DD",
+    dustyColor: mainColor
+  };
+}
+
 async function copyTarget(id){
   const text = $(id).value || "";
   if(!text) return;
