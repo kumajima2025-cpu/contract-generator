@@ -170,6 +170,38 @@
       line-height:1.7;
       margin-top:8px;
     }
+
+    .quickLinks{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+  margin:0 0 14px;
+}
+
+.quickBtn{
+  display:block;
+  width:100%;
+  text-align:center;
+  text-decoration:none;
+  background:#F7F7F6;
+  color:var(--text);
+  border:1.4px solid var(--border);
+  border-radius:14px;
+  padding:12px 14px;
+  font-size:14px;
+  font-weight:900;
+  box-shadow:var(--shadow-sm);
+}
+
+.quickBtn:active{
+  transform:scale(.99);
+}
+
+@media (min-width:960px){
+  .quickLinks{
+    grid-template-columns:1fr;
+  }
+}
   </style>
 </head>
 <body>
@@ -285,6 +317,16 @@
           <button id="sampleBtn" class="btn btnLight" type="button">帶入範例</button>
         </div>
 
+<div class="quickLinks">
+  <a class="quickBtn" href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
+  <a class="quickBtn" href="https://script.google.com" target="_blank" rel="noopener noreferrer">Google Apps Script</a>
+  <a class="quickBtn" href="https://developers.line.biz/console/" target="_blank" rel="noopener noreferrer">LINE Developers / LIFF</a>
+</div>
+
+<div class="tiny">
+  可直接點上方按鈕開啟對應平台，照教學操作即可。
+</div>
+        
         <div id="status" class="status"></div>
 
       </div>
