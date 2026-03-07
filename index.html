@@ -46,6 +46,7 @@
       display:grid;
       grid-template-columns:380px 1fr;
       gap:16px;
+      align-items:start;
     }
     @media (max-width:960px){
       .grid{ grid-template-columns:1fr; }
@@ -76,6 +77,15 @@
       background:#FAFAF9;
       color:var(--text);
       outline:none;
+    }
+    input[type="color"]{
+      width:100%;
+      height:46px;
+      border:1.4px solid var(--border);
+      border-radius:14px;
+      background:#FAFAF9;
+      padding:6px;
+      cursor:pointer;
     }
     .textarea{
       min-height:160px;
@@ -170,47 +180,50 @@
     </div>
 
     <div class="grid">
-  <div class="card">
-    <div class="sectionTitle">店家資料</div>
 
-    <div class="label">契約標題</div>
-    <input id="contractTitle" class="input" value="寵物美容服務定型化契約">
+      <!-- 左側：表單 -->
+      <div class="card">
+        <div class="sectionTitle">店家資料</div>
 
-    <div class="label">店名</div>
-    <input id="storeName" class="input" placeholder="例：ＯＯ寵物有限公司">
+        <div class="label">契約標題</div>
+        <input id="contractTitle" class="input" value="寵物美容服務定型化契約">
 
-    <div class="label">店家地址</div>
-    <input id="storeAddress" class="input" placeholder="例：台北市信義區...">
+        <div class="label">店名</div>
+        <input id="storeName" class="input" placeholder="例：ＯＯ寵物有限公司">
 
-    <div class="label">官方 LINE</div>
-    <input id="storeLine" class="input" placeholder="例：@abcde01234">
+        <div class="label">店家地址</div>
+        <input id="storeAddress" class="input" placeholder="例：台北市信義區...">
 
-    <div class="label">店家 Email / 備份信箱</div>
-    <input id="backupEmail" class="input" placeholder="例：store@gmail.com">
+        <div class="label">官方 LINE</div>
+        <input id="storeLine" class="input" placeholder="例：@abcde01234">
 
-    <div class="label">主題色</div>
-    <input type="color" id="mainColor" value="#C35A2E">
+        <div class="label">店家 Email / 備份信箱</div>
+        <input id="backupEmail" class="input" placeholder="例：store@gmail.com">
 
-    <div class="label">背景色</div>
-    <input type="color" id="bgColor" value="#FFF7ED">
+        <div class="row2">
+          <div>
+            <div class="label">主題色</div>
+            <input type="color" id="mainColor" value="#C35A2E">
+          </div>
+          <div>
+            <div class="label">背景色</div>
+            <input type="color" id="bgColor" value="#FFF7ED">
+          </div>
+        </div>
 
-    <div class="row2">
-      <div>
-        <div class="label">LIFF ID</div>
-        <input id="liffId" class="input" placeholder="可先留空">
-      </div>
-
-      <div>
-        <div class="label">Debug 模式</div>
-        <select id="debugMode" class="input">
-          <option value="false" selected>false</option>
-          <option value="true">true</option>
-        </select>
-      </div>
-    </div>
-
-  </div>
-</div>
+        <div class="row2">
+          <div>
+            <div class="label">LIFF ID</div>
+            <input id="liffId" class="input" placeholder="可先留空">
+          </div>
+          <div>
+            <div class="label">Debug 模式</div>
+            <select id="debugMode" class="input">
+              <option value="false" selected>false</option>
+              <option value="true">true</option>
+            </select>
+          </div>
+        </div>
 
         <div class="label">Google Script URL</div>
         <input id="googleScriptUrl" class="input" placeholder="可先留空，之後再補">
@@ -259,6 +272,7 @@
         </div>
       </div>
 
+      <!-- 右側：輸出 -->
       <div>
         <div class="card outBlock">
           <div class="outHead">
@@ -290,6 +304,7 @@
           <textarea id="readmeOut" class="textarea" readonly></textarea>
         </div>
       </div>
+
     </div>
   </div>
 
