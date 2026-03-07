@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>寵物美容電子契約｜生成器 v4</title>
+  <style>
+    :root{
+      --bg:#F7F7F6;
+      --card:#FFFFFF;
+      --border:#D7D7D4;
+      --text:#262626;
+      --muted:#737373;
+      --latte:#4A4A4A;
+      --danger:#8A2B2B;
+      --ok:#214021;
+      --radius:20px;
+      --shadow:0 14px 34px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:#F2F2F1;
+      color:var(--text);
+      font-family:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif;
+    }
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:24px 16px 40px;
+    }
+    .title{
+      font-size:30px;
+      font-weight:900;
+      text-align:center;
+      margin:8px 0 8px;
+    }
+    .sub{
+      text-align:center;
+      color:var(--muted);
+      font-weight:600;
+      margin:0 0 24px;
+      line-height:1.7;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:380px 1fr;
+      gap:16px;
+    }
+    @media (max-width:960px){
+      .grid{ grid-template-columns:1fr; }
+    }
+    .card{
+      background:var(--card);
+      border:1px solid rgba(0,0,0,.10);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+    .sectionTitle{
+      font-size:20px;
+      font-weight:900;
+      margin:0 0 14px;
+    }
+    .label{
+      font-size:15px;
+      font-weight:800;
+      margin:14px 0 8px;
+    }
+    .input, .textarea, select{
+      width:100%;
+      border:1.4px solid var(--border);
+      border-radius:14px;
+      padding:12px 14px;
+      font-size:15px;
+      background:#FAFAF9;
+      color:var(--text);
+      outline:none;
+    }
+    .textarea{
+      min-height:160px;
+      resize:vertical;
+      font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+      line-height:1.6;
+    }
+    .big{
+      min-height:260px;
+    }
+    .row2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    .btnRow{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:16px;
+    }
+    .btn{
+      border:none;
+      border-radius:14px;
+      padding:13px 14px;
+      font-size:15px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .btnPrimary{
+      background:linear-gradient(180deg,#5A5A5A 0%, #3F3F3F 100%);
+      color:#fff;
+    }
+    .btnLight{
+      background:#ECECEA;
+      color:#222;
+    }
+    .outBlock{
+      margin-bottom:16px;
+    }
+    .outHead{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .outTitle{
+      font-size:16px;
+      font-weight:900;
+    }
+    .miniRow{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .miniBtn{
+      border:none;
+      border-radius:10px;
+      padding:8px 10px;
+      cursor:pointer;
+      font-weight:800;
+      background:#ECECEA;
+    }
+    .hint{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+      margin-top:10px;
+    }
+    .status{
+      margin-top:12px;
+      font-weight:800;
+      white-space:pre-line;
+      line-height:1.7;
+    }
+    .ok{ color:var(--ok); }
+    .err{ color:var(--danger); }
+    .tiny{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.7;
+      margin-top:8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="title">寵物美容電子契約｜生成器 v4</div>
+    <div class="sub">
+      輸入店家資料後，自動產出完整 <code>index.html</code>、<code>Code.gs</code>、<code>README.md</code>，並可一鍵下載 ZIP。
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="sectionTitle">店家資料</div>
+
+        <div class="label">契約標題</div>
+        <input id="contractTitle" class="input" value="寵物美容服務定型化契約">
+
+        <div class="label">店名</div>
+        <input id="storeName" class="input" placeholder="例：熊嶼寵物有限公司">
+
+        <div class="label">店家地址</div>
+        <input id="storeAddress" class="input" placeholder="例：新北市板橋區...">
+
+        <div class="label">官方 LINE</div>
+        <input id="storeLine" class="input" placeholder="例：@kumajima">
+
+        <div class="label">店家 Email / 備份信箱</div>
+        <input id="backupEmail" class="input" placeholder="例：store@gmail.com">
+
+        <div class="row2">
+          <div>
+            <div class="label">LIFF ID</div>
+            <input id="liffId" class="input" placeholder="可先留空">
+          </div>
+          <div>
+            <div class="label">Debug 模式</div>
+            <select id="debugMode" class="input">
+              <option value="false" selected>false</option>
+              <option value="true">true</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="label">Google Script URL</div>
+        <input id="googleScriptUrl" class="input" placeholder="可先留空，之後再補">
+
+        <div class="row2">
+          <div>
+            <div class="label">sharedSecret</div>
+            <input id="sharedSecret" class="input" placeholder="可自動產生">
+          </div>
+          <div style="display:flex;align-items:end;">
+            <button id="genSecret" class="btn btnLight" type="button" style="width:100%;">自動產生密碼</button>
+          </div>
+        </div>
+
+        <div class="row2">
+          <div>
+            <div class="label">下載檔名</div>
+            <input id="zipName" class="input" placeholder="例：kumajima-contract-template">
+          </div>
+          <div>
+            <div class="label">Repo 建議名稱</div>
+            <input id="repoName" class="input" placeholder="例：kumajima-contract">
+          </div>
+        </div>
+
+        <div class="btnRow">
+          <button id="buildBtn" class="btn btnPrimary" type="button">生成完整檔案</button>
+          <button id="downloadBtn" class="btn btnLight" type="button">下載 ZIP</button>
+        </div>
+
+        <div class="btnRow">
+          <button id="resetBtn" class="btn btnLight" type="button">清空</button>
+          <button id="sampleBtn" class="btn btnLight" type="button">帶入範例</button>
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <div class="hint">
+          生成器會讀取：
+          <br>1. <code>template/index-template.html</code>
+          <br>2. <code>template/code-template.gs</code>
+          <br>3. <code>template/readme-template.md</code>
+        </div>
+        <div class="tiny">
+          你的正式前台請放在 <code>template/index-template.html</code>，並把原本的 STORE_CONFIG 改成 <code>{{STORE_CONFIG}}</code>。
+        </div>
+      </div>
+
+      <div>
+        <div class="card outBlock">
+          <div class="outHead">
+            <div class="outTitle">① 完整 index.html</div>
+            <div class="miniRow">
+              <button class="miniBtn" type="button" data-copy="indexOut">複製</button>
+            </div>
+          </div>
+          <textarea id="indexOut" class="textarea big" readonly></textarea>
+        </div>
+
+        <div class="card outBlock">
+          <div class="outHead">
+            <div class="outTitle">② 完整 Code.gs</div>
+            <div class="miniRow">
+              <button class="miniBtn" type="button" data-copy="codeOut">複製</button>
+            </div>
+          </div>
+          <textarea id="codeOut" class="textarea big" readonly></textarea>
+        </div>
+
+        <div class="card outBlock">
+          <div class="outHead">
+            <div class="outTitle">③ README.md</div>
+            <div class="miniRow">
+              <button class="miniBtn" type="button" data-copy="readmeOut">複製</button>
+            </div>
+          </div>
+          <textarea id="readmeOut" class="textarea" readonly></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="./js/generator.js"></script>
+</body>
+</html>
