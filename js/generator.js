@@ -116,18 +116,22 @@ async function generateFiles(data){
   const codeConfig = buildCodeConfig(data);
   const theme = getThemeColors(data.mainColor, data.bgColor);
 
-  const indexHtml = applyTemplate(indexTemplate, {
-    STORE_CONFIG: storeConfig,
-    STORE_NAME: data.storeName,
-    STORE_ADDRESS: data.storeAddress,
-    STORE_LINE: data.storeLine,
-    BACKUP_EMAIL: data.backupEmail,
-    CONTRACT_TITLE: data.contractTitle,
-    SECRET: data.sharedSecret,
-    REPO_NAME: data.repoName || "",
-    MAIN_COLOR: data.mainColor,
-    BG_COLOR: data.bgColor
-  });
+const indexHtml = applyTemplate(indexTemplate, {
+  STORE_CONFIG: storeConfig,
+  STORE_NAME: data.storeName,
+  STORE_ADDRESS: data.storeAddress,
+  STORE_LINE: data.storeLine,
+  BACKUP_EMAIL: data.backupEmail,
+  CONTRACT_TITLE: data.contractTitle,
+  SECRET: data.sharedSecret,
+  REPO_NAME: data.repoName || "",
+  MAIN_COLOR: data.mainColor,
+  BG_COLOR: data.bgColor,
+  TEXT_COLOR: theme.textColor,
+  MUTED_COLOR: theme.mutedColor,
+  STONE_COLOR: theme.stoneColor,
+  DUSTY_COLOR: theme.dustyColor
+});
 
   const codeGs = applyTemplate(codeTemplate, {
     CODE_CONFIG: codeConfig,
