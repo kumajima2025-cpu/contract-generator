@@ -6,148 +6,377 @@ function doPost(e) {
     const payload = JSON.parse(raw || "{}");
 
     if (!payload || payload.secret !== SHARED_SECRET) {
-      return jsonOut_({ ok: false, error: "Unauthorized" });
+      return jsonOut({ ok: false, error: "Unauthorized" });
     }
 
     const data = normalizeData_(payload.data || {});
-    const signatureDataUrl = String(payload.signatureDataUrl || "");
+    const sigDataUrl = String(payload.signatureDataUrl || "");
     const contractText = String(payload.contractText || "");
 
     const ownerEmail = safe_(data.ownerEmail);
-    if (!ownerEmail) return jsonOut_({ ok: false, error: "Missing ownerEmail" });
-    if (!isValidEmail_(ownerEmail)) return jsonOut_({ ok: false, error: "Invalid ownerEmail" });
+    if (!ownerEmail) return jsonOut({ ok: false, error: "Missing ownerEmail" });
+    if (!isValidEmail_(ownerEmail)) return jsonOut({ ok: false, error: "Invalid ownerEmail" });
 
-    const pdfBlob = buildContractPdf_(data, signatureDataUrl, contractText);
+    const pdfBlob = buildContractPdf_(data, sigDataUrl, contractText);
     pdfBlob.setName(makePdfFileName_(data));
 
-    sendContractEmail_(ownerEmail, data, pdfBlob);
+    if (SAVE_PDF_TO_DRIVE) {
+      try {
+        DriveApp.createFile(pdfBlob);
+      } catch (err) {
+        console.warn("SAVE_PDF_TO_DRIVE failed:", err);
+      }
+    }
 
-    return jsonOut_({ ok: true, message: "Success" });
+    const bodyText = buildEmailBody_(data);
+
+    MailApp.sendEmail({
+      to: ownerEmail,
+      bcc: BACKUP_EMAIL,
+      replyTo: BACKUP_EMAIL,
+      subject: `${STORE_NAME}｜毛孩資料卡＋定型化契約副本（含簽名）｜${safe_(data.petName) || "毛孩"}`,
+      body: bodyText,
+      name: STORE_NAME,
+      attachments: [pdfBlob]
+    });
+
+    return jsonOut({ ok: true });
 
   } catch (err) {
-    return jsonOut_({
-      ok: false,
-      error: err && err.message ? err.message : String(err)
-    });
+    return jsonOut({ ok: false, error: String(err && err.message ? err.message : err) });
   }
 }
 
-function sendContractEmail_(ownerEmail, data, pdfBlob) {
-  const petName = safe_(data.petName);
-  const ownerName = safe_(data.ownerName);
-
-  const subject = `${STORE_NAME}｜${petName || "毛孩"}契約副本`;
-  const body =
-    `${ownerName || "您好"}：\n\n` +
-    `附件為您本次簽署之契約 PDF。\n\n` +
-    `店家：${STORE_NAME}\n` +
-    `地址：${STORE_ADDRESS}\n` +
-    `LINE：${STORE_LINE}\n\n` +
-    `若有任何問題，歡迎與我們聯繫。`;
-
-  MailApp.sendEmail({
-    to: ownerEmail,
-    bcc: BACKUP_EMAIL,
-    subject: subject,
-    body: body,
-    attachments: [pdfBlob]
-  });
-}
-
-function buildContractPdf_(data, signatureDataUrl, contractText) {
-  const html = `
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <style>
-          body {
-            font-family: Arial, "Noto Sans TC", sans-serif;
-            padding: 24px;
-            line-height: 1.8;
-            color: #222;
-          }
-          h1 {
-            font-size: 20px;
-            margin: 0 0 16px;
-          }
-          .block {
-            margin-bottom: 18px;
-          }
-          .label {
-            font-weight: bold;
-          }
-          img.signature {
-            max-width: 240px;
-            border: 1px solid #ddd;
-            margin-top: 8px;
-          }
-          .contract {
-            white-space: pre-wrap;
-            border-top: 1px solid #ddd;
-            margin-top: 20px;
-            padding-top: 20px;
-          }
-        </style>
-      </head>
-      <body>
-        <h1>${escapeHtml_(STORE_NAME)}｜契約副本</h1>
-
-        <div class="block"><span class="label">飼主姓名：</span>${escapeHtml_(safe_(data.ownerName))}</div>
-        <div class="block"><span class="label">寵物姓名：</span>${escapeHtml_(safe_(data.petName))}</div>
-        <div class="block"><span class="label">Email：</span>${escapeHtml_(safe_(data.ownerEmail))}</div>
-
-        ${signatureDataUrl ? `<div class="block">
-          <div class="label">簽名：</div>
-          <img class="signature" src="${signatureDataUrl}" />
-        </div>` : ""}
-
-        <div class="contract">${escapeHtml_(contractText)}</div>
-      </body>
-    </html>
-  `;
-
-  const blob = HtmlService.createHtmlOutput(html).getBlob().getAs("application/pdf");
-
-  if (SAVE_PDF_TO_DRIVE) {
-    DriveApp.createFile(blob);
-  }
-
-  return blob;
-}
-
-function makePdfFileName_(data) {
-  const petName = safe_(data.petName) || "pet";
-  const ownerName = safe_(data.ownerName) || "owner";
-  const date = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyyMMdd_HHmmss");
-  return `${STORE_NAME}_${petName}_${ownerName}_${date}.pdf`;
-}
-
-function normalizeData_(data) {
-  const out = {};
-  Object.keys(data || {}).forEach(function(key) {
-    out[key] = typeof data[key] === "string" ? data[key].trim() : data[key];
-  });
-  return out;
-}
-
-function safe_(value) {
-  return value == null ? "" : String(value).trim();
-}
-
-function isValidEmail_(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
-}
-
-function escapeHtml_(str) {
-  return String(str || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-function jsonOut_(obj) {
+function jsonOut(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function makePdfFileName_(data) {
+  const dn = safe_(data.signDate) || Utilities.formatDate(new Date(), "Asia/Taipei", "yyyy-MM-dd");
+  const pet = safe_(data.petName) || "毛孩";
+  const owner = safe_(data.ownerName) || "飼主";
+  const ts = Utilities.formatDate(new Date(), "Asia/Taipei", "yyyyMMdd_HHmmss");
+  return `${STORE_NAME}_資料卡+契約_${dn}_${owner}_${pet}_${ts}.pdf`;
+}
+
+function safe_(v){
+  if (v === null || v === undefined) return "";
+  if (Array.isArray(v)) return v.map(safe_).filter(Boolean).join("、");
+  return String(v).trim();
+}
+
+function isValidEmail_(email){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
+}
+
+function esc_(s){
+  return String(s || "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");
+}
+
+function joinList_(v){
+  if (!v) return "—";
+  const arr = Array.isArray(v) ? v : [v];
+  const clean = arr.map(x => safe_(x)).filter(Boolean);
+  return clean.length ? clean.join("、") : "—";
+}
+
+function normalizeData_(d) {
+  const out = Object.assign({}, d);
+
+  out.petBirthday = safe_(d.petBirthday) || safe_(d.petBirth);
+  out.treatAllowed = safe_(d.treatAllowed) || safe_(d.snackOK);
+  out.petSex = safe_(d.petSex) || safe_(d.sex) || "—";
+
+  if (Array.isArray(d.medicalHistory)) out.medicalHistory = d.medicalHistory;
+  else if (Array.isArray(d.history)) out.medicalHistory = d.history;
+  else if (safe_(d.medicalHistory)) out.medicalHistory = [safe_(d.medicalHistory)];
+  else if (safe_(d.history)) out.medicalHistory = [safe_(d.history)];
+  else out.medicalHistory = [];
+
+  out.medicalNote = safe_(d.medicalNote) || safe_(d.historyNote);
+  out.otherInjuryNote = safe_(d.otherInjuryNote);
+
+  if (Array.isArray(d.petTemperament)) out.petTemperament = d.petTemperament;
+  else if (Array.isArray(d.temperament)) out.petTemperament = d.temperament;
+  else if (safe_(d.petTemperament)) out.petTemperament = [safe_(d.petTemperament)];
+  else if (safe_(d.temperament)) out.petTemperament = [safe_(d.temperament)];
+  else out.petTemperament = [];
+
+  out.petTemperamentNote = safe_(d.petTemperamentNote) || safe_(d.temperamentNote);
+
+  const fa = safe_(d.foodAllergy);
+  const ad = safe_(d.allergyDetail);
+  out.foodAllergyText =
+    (fa === "有") ? (ad ? `有（${ad}）` : "有（未填內容）")
+    : (fa ? fa : "—");
+
+  const ch = safe_(d.chipHas);
+  const cn = safe_(d.chipNo);
+  out.chipText =
+    (ch === "有") ? (cn ? `有（${cn}）` : "有（未填號碼）")
+    : (ch ? ch : "—");
+
+  const vm = safe_(d.vetMode);
+  out.vetText =
+    (vm === "乙方指定") ? "乙方指定"
+    : `甲方指定：${safe_(d.vetName)} / ${safe_(d.vetPhone)}`;
+
+  return out;
+}
+
+function buildEmailBody_(data){
+  const temperament = joinList_(data.petTemperament);
+  const history = joinList_(data.medicalHistory);
+
+  const historyHasOther = Array.isArray(data.medicalHistory) && data.medicalHistory.includes("其他外傷");
+  const otherLine = historyHasOther
+    ? `其他外傷說明：${safe_(data.otherInjuryNote) || "（未填）"}\n`
+    : "";
+
+  return (
+    "您好，\n\n" +
+    "附件為您本次線上簽署之「毛孩資料卡＋定型化契約」副本（含簽名）。\n\n" +
+    "【毛孩資料卡摘要】\n" +
+    `飼主：${safe_(data.ownerName)}\n` +
+    `電話：${safe_(data.ownerPhone)}\n` +
+    `Email：${safe_(data.ownerEmail)}\n` +
+    `地址：${safe_(data.ownerAddress)}\n` +
+    `緊急聯絡人：${safe_(data.emergencyName)}（${safe_(data.emergencyPhone)}）\n` +
+    `是否飼主本人：${safe_(data.isOwnerSelf)}\n` +
+    (
+      String(data.isOwnerSelf || "").trim() === "否" && safe_(data.ownerRelation)
+        ? `與飼主關係：${safe_(data.ownerRelation)}\n`
+        : ""
+    ) +
+    "\n" +
+    `毛孩：${safe_(data.petName)}\n` +
+    `品種：${safe_(data.petBreed)}\n` +
+    `性別：${safe_(data.petSex) || "—"}\n` +
+    `年齡：${safe_(data.petAge)}\n` +
+    `體重：${safe_(data.petWeight)} kg\n` +
+    `生日：${safe_(data.petBirthday)}\n` +
+    `晶片：${safe_(data.chipText)}\n` +
+    `食物過敏：${safe_(data.foodAllergyText)}\n` +
+    `零食：${safe_(data.treatAllowed)}\n` +
+    `個性：${temperament}\n` +
+    `個性備註：${safe_(data.petTemperamentNote) || "—"}\n` +
+    `病史：${history}\n` +
+    otherLine +
+    `病史備註：${safe_(data.medicalNote) || "—"}\n\n` +
+    `緊急就醫：${safe_(data.vetMode)}\n` +
+    `動物醫院：${safe_(data.vetName) || "—"}\n` +
+    `電話：${safe_(data.vetPhone) || "—"}\n` +
+    `地址：${safe_(data.vetAddress) || "—"}\n\n` +
+    `簽署日期：${safe_(data.signDate)}\n\n` +
+    `如有任何疑問或意見，歡迎透過官方LINE：${STORE_LINE} 聯繫我們！\n\n` +
+    STORE_NAME
+  );
+}
+
+function buildContractPdf_(data, sigDataUrl, contractText) {
+  const temperament = joinList_(data.petTemperament);
+  const history = joinList_(data.medicalHistory);
+
+  const historyHasOther = Array.isArray(data.medicalHistory) && data.medicalHistory.includes("其他外傷");
+  const otherInjuryNote = historyHasOther ? (safe_(data.otherInjuryNote) || "（未填）") : "—";
+
+  const contractHtml = `<pre class="contract">${esc_(contractText || "")}</pre>`;
+
+  const html = `
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      @page { margin: 16mm 14mm; }
+
+      body{
+        font-family: Arial, "Microsoft JhengHei", sans-serif;
+        color:#2F201B;
+        font-size:11.2pt;
+        line-height:1.55;
+      }
+
+      .topTitle{
+        font-size:16.2pt;
+        font-weight:800;
+        margin:0 0 6px;
+      }
+      .topMeta{
+        color:#8B6F61;
+        font-size:10.2pt;
+        margin:0 0 12px;
+      }
+
+      .panel{
+        border:1px solid #E6C9B1;
+        border-radius:12px;
+        background:#FFFBF6;
+        margin:0 0 10px;
+        overflow:hidden;
+      }
+      .panelHead{
+        font-weight:900;
+        font-size:12.6pt;
+        padding:10px 12px;
+        background:#FFF3E8;
+        border-bottom:1px solid #E6C9B1;
+      }
+      .panelBody{
+        padding:12px;
+        background:#FFFBF6;
+      }
+
+      .grid2{ width:100%; border-collapse:collapse; }
+      .grid2 td{ vertical-align:top; width:50%; padding:0 2px; }
+
+      .colTitle{
+        font-weight:900;
+        margin:0 0 6px;
+        font-size:12pt;
+      }
+
+      .kv{
+        width:100% !important;
+        border-collapse:collapse !important;
+        table-layout:fixed !important;
+      }
+      .kv td{
+        padding:3px 0 !important;
+        vertical-align:top !important;
+        word-break:break-word !important;
+        overflow-wrap:anywhere !important;
+      }
+
+      .k{
+        width:68px !important;
+        padding-right:6px !important;
+        white-space:nowrap !important;
+        text-align:left !important;
+        color:#8B6F61 !important;
+        font-weight:700 !important;
+      }
+
+      .v{
+        width:auto !important;
+      }
+
+      .chipOneLine{
+        white-space:nowrap;
+        word-break:normal;
+        overflow-wrap:normal;
+      }
+
+      .contract{
+        margin:0;
+        white-space:pre-wrap;
+        word-break:break-word;
+        overflow-wrap:anywhere;
+        line-height:1.75;
+        font-size:10.8pt;
+        background:transparent;
+        padding:0;
+        border:none;
+      }
+
+      .sigBlock{ page-break-inside:avoid; break-inside:avoid; }
+      img.sig{
+        border:1px solid #E6C9B1;
+        border-radius:8px;
+        display:block;
+      }
+      .footer{
+        margin-top:8px;
+        color:#8B6F61;
+        font-size:10pt;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="topTitle">${esc_(STORE_NAME)}｜寵物美容服務定型化契約簽署副本</div>
+    <div class="topMeta">地址：${esc_(STORE_ADDRESS)}　｜　官方LINE：${esc_(STORE_LINE)}</div>
+
+    <div class="panel">
+      <div class="panelHead">一、毛孩資料卡（契約附件）</div>
+      <div class="panelBody">
+        <table class="grid2">
+          <tr>
+            <td>
+              <div class="colTitle">甲方資料</div>
+              <table class="kv">
+                <tr><td class="k">飼主姓名</td><td class="v">${esc_(safe_(data.ownerName) || "—")}</td></tr>
+                <tr><td class="k">身分證</td><td class="v">${esc_(safe_(data.ownerIdNo) || "—")}</td></tr>
+                <tr><td class="k">電話</td><td class="v">${esc_(safe_(data.ownerPhone) || "—")}</td></tr>
+                <tr><td class="k">Email</td><td class="v">${esc_(safe_(data.ownerEmail) || "—")}</td></tr>
+                <tr><td class="k">地址</td><td class="v">${esc_(safe_(data.ownerAddress) || "—")}</td></tr>
+                <tr><td class="k">緊急人</td><td class="v">${esc_(safe_(data.emergencyName) || "—")}</td></tr>
+                <tr><td class="k">緊急電</td><td class="v">${esc_(safe_(data.emergencyPhone) || "—")}</td></tr>
+                <tr><td class="k">本人</td><td class="v">${esc_(safe_(data.isOwnerSelf) || "—")}</td></tr>
+                <tr><td class="k">關係</td><td class="v">${esc_(safe_(data.ownerRelation) || "—")}</td></tr>
+              </table>
+            </td>
+
+            <td>
+              <div class="colTitle">毛孩資料</div>
+              <table class="kv">
+                <tr><td class="k">寵物名字</td><td class="v">${esc_(safe_(data.petName) || "—")}</td></tr>
+                <tr><td class="k">品種</td><td class="v">${esc_(safe_(data.petBreed) || "—")}</td></tr>
+                <tr><td class="k">性別</td><td class="v">${esc_(safe_(data.petSex) || "—")}</td></tr>
+                <tr><td class="k">年齡</td><td class="v">${esc_(safe_(data.petAge) || "—")}</td></tr>
+                <tr><td class="k">生日</td><td class="v">${esc_(safe_(data.petBirthday) || "—")}</td></tr>
+                <tr><td class="k">體重</td><td class="v">${esc_(safe_(data.petWeight) || "—")}</td></tr>
+                <tr><td class="k">個性</td><td class="v">${esc_(temperament)}</td></tr>
+                <tr><td class="k">備註</td><td class="v">${esc_(safe_(data.petTemperamentNote) || "—")}</td></tr>
+                <tr><td class="k">晶片</td><td class="v"><span class="chipOneLine">${esc_(safe_(data.chipText) || "—")}</span></td></tr>
+                <tr><td class="k">過敏</td><td class="v">${esc_(safe_(data.foodAllergyText) || "—")}</td></tr>
+                <tr><td class="k">零食</td><td class="v">${esc_(safe_(data.treatAllowed) || "—")}</td></tr>
+                <tr><td class="k">病史</td><td class="v">${esc_(history)}</td></tr>
+                <tr><td class="k">外傷</td><td class="v">${esc_(otherInjuryNote)}</td></tr>
+                <tr><td class="k">病註</td><td class="v">${esc_(safe_(data.medicalNote) || "—")}</td></tr>
+                <tr><td class="k">就醫</td><td class="v">${esc_(safe_(data.vetMode) || "—")}</td></tr>
+                <tr><td class="k">院名</td><td class="v">${esc_(safe_(data.vetName) || "—")}</td></tr>
+                <tr><td class="k">院電</td><td class="v">${esc_(safe_(data.vetPhone) || "—")}</td></tr>
+                <tr><td class="k">院址</td><td class="v">${esc_(safe_(data.vetAddress) || "—")}</td></tr>
+                <tr><td class="k">簽署</td><td class="v">${esc_(safe_(data.signDate) || "—")}</td></tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+
+        <div class="footer">※ 本資料卡為契約附件之一部分，供日後查證留存。</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panelHead">二、定型化契約全文</div>
+      <div class="panelBody">
+        ${contractHtml}
+      </div>
+    </div>
+
+    <div class="panel sigBlock">
+      <div class="panelHead">三、甲方簽名</div>
+      <div class="panelBody">
+        ${sigDataUrl ? `<img class="sig" src="${sigDataUrl}" width="320">` : `<div class="footer">（未附簽名圖）</div>`}
+        <div class="footer">此文件為線上簽署之副本（含簽名），供日後查證留存。</div>
+      </div>
+    </div>
+
+  </body>
+  </html>
+  `;
+
+  const pdfBlob = HtmlService
+    .createHtmlOutput(html)
+    .getBlob()
+    .getAs(MimeType.PDF);
+
+  return pdfBlob;
 }
