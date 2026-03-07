@@ -424,14 +424,12 @@ window.addEventListener("DOMContentLoaded", () => {
   $("resetBtn").addEventListener("click", resetAll);
   $("sampleBtn").addEventListener("click", fillSample);
 
-  $("themePreset").addEventListener("change",(e)=>{
-  const theme=getPresetTheme(e.target.value);
-
-  $("mainColor").value=theme.mainColor;
-  $("bgColor").value=theme.bgColor;
-
-  updatePreview();
-});
+  $("themePreset").addEventListener("change", (e) => {
+    const theme = getPresetTheme(e.target.value);
+    $("mainColor").value = theme.mainColor;
+    $("bgColor").value = theme.bgColor;
+    updatePreview();
+  });
 
   $("storeName").addEventListener("input", () => {
     if(!getVal("zipName")){
@@ -441,10 +439,9 @@ window.addEventListener("DOMContentLoaded", () => {
       setVal("repoName", slugify(getVal("storeName")) + "-contract");
     }
   });
-  
-$("mainColor").addEventListener("input", updatePreview);
-$("bgColor").addEventListener("input", updatePreview);
-  updatePreview();
+
+  $("mainColor").addEventListener("input", updatePreview);
+  $("bgColor").addEventListener("input", updatePreview);
 
   document.querySelectorAll("[data-copy]").forEach(btn => {
     btn.addEventListener("click", async () => {
@@ -459,4 +456,6 @@ $("bgColor").addEventListener("input", updatePreview);
       }
     });
   });
+
+  updatePreview();
 });
