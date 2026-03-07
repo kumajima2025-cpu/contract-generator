@@ -202,6 +202,58 @@
     grid-template-columns:1fr;
   }
 }
+    .quickLinks{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+  margin:0 0 18px;
+}
+
+.quickBtn{
+  display:block;
+  width:100%;
+  text-align:center;
+  text-decoration:none;
+  background:#F7F7F6;
+  color:var(--text);
+  border:1.4px solid var(--border);
+  border-radius:14px;
+  padding:13px 14px;
+  font-size:14px;
+  font-weight:900;
+  box-shadow:var(--shadow-sm);
+}
+
+.quickBtn:active{
+  transform:scale(.99);
+}
+
+.previewBlock{
+  margin-bottom:18px;
+}
+
+.previewWrap{
+  margin-top:12px;
+  padding:14px;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:18px;
+  background:#FAFAF9;
+}
+
+.previewFrame{
+  width:100%;
+  height:560px;
+  border:1px solid #ddd;
+  border-radius:14px;
+  background:#fff;
+  display:block;
+}
+
+@media (max-width:960px){
+  .previewFrame{
+    height:620px;
+  }
+}
   </style>
 </head>
 <body>
@@ -251,19 +303,18 @@
     <input type="color" id="bgColor" value="#FFF7ED">
   </div>
 </div>
-        <div class="card">
-  <div class="sectionTitle">即時預覽</div>
+        
+<div class="card outBlock previewBlock">
+  <div class="outHead">
+    <div class="outTitle">即時預覽</div>
+  </div>
 
-  <iframe
-    id="previewFrame"
-    style="
-      width:100%;
-      height:520px;
-      border:1px solid #ddd;
-      border-radius:14px;
-      background:#fff;
-    ">
-  </iframe>
+  <div class="previewWrap">
+    <iframe
+      id="previewFrame"
+      class="previewFrame">
+    </iframe>
+  </div>
 
   <div class="tiny">
     更換品牌主題後，下方契約畫面會即時更新
@@ -320,8 +371,11 @@
 <div class="quickLinks">
   <a class="quickBtn" href="https://github.com/new" target="_blank" rel="noopener noreferrer">① 建立 GitHub Repo</a>
   <a class="quickBtn" href="https://script.google.com/home/start" target="_blank" rel="noopener noreferrer">② 新增 Google Apps Script</a>
-  <a class="quickBtn" href="https://developers.line.biz/console/" target="_blank" rel="noopener noreferrer">③ 開啟 LINE Developers</a>
-  <a class="quickBtn" href="https://github.com/login" target="_blank" rel="noopener noreferrer">GitHub 登入</a>
+  <a class="quickBtn" href="https://developers.line.biz/console/" target="_blank" rel="noopener noreferrer">③ 開啟 LINE Developers / LIFF</a>
+</div>
+
+<div class="tiny">
+  可直接點上方按鈕開啟對應平台，照教學操作即可。
 </div>
         
 <div class="tiny">
