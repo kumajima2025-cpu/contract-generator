@@ -109,9 +109,13 @@ function collectData(){
   return {
     contractTitle: getVal("contractTitle"),
     storeName: getVal("storeName"),
+    storeCompanyName: getVal("storeCompanyName"),
     storeAddress: getVal("storeAddress"),
     storeLine: getVal("storeLine"),
     backupEmail: getVal("backupEmail"),
+    storeVetName: getVal("storeVetName"),
+    storeVetPhone: getVal("storeVetPhone"),
+    storeVetAddress: getVal("storeVetAddress"),
     liffId: getVal("liffId"),
     googleScriptUrl: getVal("googleScriptUrl"),
     sharedSecret: getVal("sharedSecret"),
@@ -147,10 +151,16 @@ window.STORE_CONFIG = {
 function buildCodeConfig(data){
   return `const SHARED_SECRET = "${escJsString(data.sharedSecret)}";
 const BACKUP_EMAIL = "${escJsString(data.backupEmail)}";
+const SAVE_PDF_TO_DRIVE = false;
+
 const STORE_NAME = "${escJsString(data.storeName)}";
+const STORE_COMPANY_NAME = "${escJsString(data.storeCompanyName || data.storeName)}";
 const STORE_ADDRESS = "${escJsString(data.storeAddress)}";
 const STORE_LINE = "${escJsString(data.storeLine)}";
-const SAVE_PDF_TO_DRIVE = false;`;
+
+const STORE_VET_NAME = "${escJsString(data.storeVetName)}";
+const STORE_VET_PHONE = "${escJsString(data.storeVetPhone)}";
+const STORE_VET_ADDRESS = "${escJsString(data.storeVetAddress)}";`;
 }
 
 function applyTemplate(template, map){
@@ -286,9 +296,13 @@ function applyPresetToInputs(preset){
 function resetAll(){
   setVal("contractTitle", "寵物美容服務定型化契約");
   setVal("storeName", "");
+  setVal("storeCompanyName", "");
   setVal("storeAddress", "");
   setVal("storeLine", "");
   setVal("backupEmail", "");
+  setVal("storeVetName", "");
+  setVal("storeVetPhone", "");
+  setVal("storeVetAddress", "");
   setVal("liffId", "");
   setVal("googleScriptUrl", "");
   setVal("sharedSecret", randomSecret(12));
@@ -307,9 +321,13 @@ function resetAll(){
 function fillSample(){
   setVal("contractTitle", "寵物美容服務定型化契約");
   setVal("storeName", "ＯＯ寵物有限公司");
+  setVal("storeCompanyName", "ＯＯ寵物有限公司");
   setVal("storeAddress", "台北市信義區100號");
   setVal("storeLine", "@abcde12345");
   setVal("backupEmail", "abcde12345@gmail.com");
+  setVal("storeVetName", "ＯＯ動物醫院");
+  setVal("storeVetPhone", "02-1234-5678");
+  setVal("storeVetAddress", "台北市信義區仁愛路100號");
   setVal("liffId", "");
   setVal("googleScriptUrl", "");
   setVal("sharedSecret", randomSecret(12));
