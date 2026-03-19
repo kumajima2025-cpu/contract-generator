@@ -669,12 +669,18 @@ ______________________________________________。
       </div>
 
       <div id="chipNoWrap" class="hidden">
-        <div class="label">晶片號碼 <span style="color:var(--muted); font-weight:700; font-size:14px;">（選填）</span></div>
-        <input id="chipNo" class="input" inputmode="numeric" pattern="[0-9]*" placeholder="晶片號碼">
-      </div>
+  <div class="label">晶片號碼 <span style="color:var(--muted); font-weight:700; font-size:14px;">（選填）</span></div>
+  <input id="chipNo" class="input" inputmode="numeric" pattern="[0-9]*" placeholder="晶片號碼">
+</div>
 
-      <div class="label">體重（公斤）</div>
-      <input id="petWeight" class="input" inputmode="decimal" placeholder="例：6.5">
+<div class="label">絕育</div>
+<div class="choiceRow" id="neuterRow">
+  <label class="choice"><input type="radio" name="isNeutered" value="有"> 有</label>
+  <label class="choice"><input type="radio" name="isNeutered" value="無" checked> 無</label>
+</div>
+
+<div class="label">體重（公斤）</div>
+<input id="petWeight" class="input" inputmode="decimal" placeholder="例：6.5">
 
       <div class="label">寵物個性（可複選）</div>
       <div class="checkGrid" id="temperamentGrid">
@@ -1117,6 +1123,7 @@ ______________________________________________。
 
     const isOwnerSelf = getRadio("isOwnerSelf") || "是";
     const chipHas = getRadio("chipHas") || "無";
+    const isNeutered = getRadio("isNeutered") || "無";
     const vetMode = getRadio("vetMode") || "甲方指定";
     const foodAllergy = getRadio("foodAllergy") || "無";
     const treatAllowed = getRadio("treatAllowed") || "可以";
@@ -1150,6 +1157,7 @@ ______________________________________________。
 
       chipHas,
       chipNo: (chipHas === "有") ? (chipNo.value || "").trim() : "",
+      isNeutered,
 
       foodAllergy,
       allergyDetail: allergyDetailText,
@@ -1256,6 +1264,7 @@ Email：${data.ownerEmail}
 寵物個性：${ptText}
 個性其他應注意：${ptNoteText}
 晶片：${chipText}
+絕育：${data.isNeutered}
 食物過敏：${allergyText}
 零食：${data.treatAllowed}
 病史：${mhText}
