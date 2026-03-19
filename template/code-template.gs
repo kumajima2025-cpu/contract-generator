@@ -1,10 +1,5 @@
 {{CODE_CONFIG}}
 
-const STORE_COMPANY_NAME = typeof STORE_COMPANY_NAME !== "undefined" ? STORE_COMPANY_NAME : STORE_NAME;
-const STORE_VET_NAME = typeof STORE_VET_NAME !== "undefined" ? STORE_VET_NAME : "";
-const STORE_VET_PHONE = typeof STORE_VET_PHONE !== "undefined" ? STORE_VET_PHONE : "";
-const STORE_VET_ADDRESS = typeof STORE_VET_ADDRESS !== "undefined" ? STORE_VET_ADDRESS : "";
-
 function doPost(e) {
   try {
     const raw = (e && e.postData && e.postData.contents) ? e.postData.contents : "";
@@ -133,9 +128,9 @@ function normalizeData_(d) {
   out.vetMode = vm || "—";
 
   if (vm === "乙方指定") {
-    out.vetName = STORE_VET_NAME || "—";
-    out.vetPhone = STORE_VET_PHONE || "—";
-    out.vetAddress = STORE_VET_ADDRESS || "—";
+    out.vetName = safe_(typeof STORE_VET_NAME !== "undefined" ? STORE_VET_NAME : "") || "—";
+    out.vetPhone = safe_(typeof STORE_VET_PHONE !== "undefined" ? STORE_VET_PHONE : "") || "—";
+    out.vetAddress = safe_(typeof STORE_VET_ADDRESS !== "undefined" ? STORE_VET_ADDRESS : "") || "—";
     out.vetText = `乙方指定：${out.vetName} / ${out.vetPhone} / ${out.vetAddress}`;
   } else {
     out.vetName = safe_(d.vetName) || "—";
